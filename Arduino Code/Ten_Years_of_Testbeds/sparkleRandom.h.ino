@@ -66,7 +66,7 @@ void sparkleRandom_reset()
   {
     for (int row = 0 ; row < 256 ; row++)
     {
-      colorArray[row][column] = 0;
+      colorArray[row][column] = 10;
     }
   }
   SerialUSB.println("sparkleRandom RESET");
