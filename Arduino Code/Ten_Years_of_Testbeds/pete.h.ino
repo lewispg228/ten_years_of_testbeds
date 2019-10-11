@@ -14,6 +14,7 @@ void pete()
     fadeall();
     // Wait a little bit before we loop around and do it again
     delay(5);
+    if(mode != 1) break; // this is changes with an interrupt button
   }
 
   // Now go in the other direction.  
@@ -27,6 +28,7 @@ void pete()
     fadeall();
     // Wait a little bit before we loop around and do it again
     delay(5);
+    if(mode != 1) break; // this is changes with an interrupt button
   }
 }
 

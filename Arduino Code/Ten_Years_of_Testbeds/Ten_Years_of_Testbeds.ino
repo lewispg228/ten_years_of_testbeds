@@ -16,6 +16,7 @@ const byte interruptPin = 2;
 volatile byte state = LOW;
 boolean buttonArmed = false; // used for debounce, requiring 100ms release of button
 int releaseTime = 0;
+long timeLastPressed = 0; // keep track of the last button press, for debouncing
 byte mode = 1;
 #define NUM_MODES 2
 boolean modeResetRequired = false; // used to know if we've changed modes, and to reset variables
@@ -36,11 +37,11 @@ void loop()
   switch (mode)
   {
     case 1:
-      //pete();
+      pete();
       SerialUSB.println("Pete");
       break;
     case 2:
-      //sparkleRandom();
+      sparkleRandom();
       SerialUSB.println("sparkleRandom");
       break;
     default:
@@ -90,12 +91,11 @@ uint16_t xy (uint8_t x, uint8_t y)
 
 void buttonLow()
 {
-  if (buttonArmed == true) // only increment MODE if armed
+  if (millis() > (timeLastPressed + 500)) // only increment MODE if we've seen a time interval since last press 
   {
     mode++;
     if (mode > NUM_MODES) mode = 1; // loop back to first mode
-    buttonArmed = false; // reset armed, this will require a release of button
     modeResetRequired = true; // we just changed modes, so we need to reset variables
   }
-  releaseTime = 0; // reset here, because this interrupt is triggered on a FALLING low on interruptPin
+  timeLastPressed = millis();
 }
