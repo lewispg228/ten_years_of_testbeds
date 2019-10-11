@@ -38,4 +38,5 @@ void pete_reset()
     // Show the leds
     FastLED.show(); 
   }
+  SerialUSB.println("pete RESET");
 }

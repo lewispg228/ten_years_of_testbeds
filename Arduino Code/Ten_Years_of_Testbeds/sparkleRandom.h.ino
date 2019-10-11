@@ -69,4 +69,5 @@ void sparkleRandom_reset()
       colorArray[row][column] = 0;
     }
   }
+  SerialUSB.println("sparkleRandom RESET");
 }

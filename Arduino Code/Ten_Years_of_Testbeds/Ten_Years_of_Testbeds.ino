@@ -14,21 +14,25 @@ uint8_t matrixHeight = 38;
 const byte ledPin = 13;
 const byte interruptPin = 2;
 volatile byte state = LOW;
+boolean buttonArmed = false; // used for debounce, requiring 100ms release of button
+int releaseTime = 0;
 byte mode = 1;
 #define NUM_MODES 2
+boolean modeResetRequired = false; // used to know if we've changed modes, and to reset variables
 
 void setup() {
   randomSeed(1);
   LEDS.addLeds<APA102, DATA_PIN1, CLOCK_PIN1, RGB>(leds, NUM_LEDS);
   pinMode(ledPin, OUTPUT);
   pinMode(interruptPin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(interruptPin), incrementMode, FALLING);
+  attachInterrupt(digitalPinToInterrupt(interruptPin), buttonLow, FALLING);
   SerialUSB.begin(57600);
   delay(1000);
   SerialUSB.println("resetting");
 }
 
-void loop() {
+void loop()
+{
   switch (mode)
   {
     case 1:
@@ -41,6 +45,24 @@ void loop() {
       break;
     default:
       break;
+  }
+
+  // Button debounce. Note, I kept this out of buttonLow(), to keep the ISR zippy
+  // check if button is released (high)
+  // count how long, and then arm for next press
+  // this requires the user to release the button for it to be armed
+  if (buttonArmed == false) // only check if it's NOT armed
+  {
+    if (digitalRead(interruptPin) == HIGH) releaseTime++;
+    delay(1);
+    if (releaseTime > 100) buttonArmed = true; // valid high time, let's arm!
+  }
+
+  if(modeResetRequired == true)
+  {
+    sparkleRandom_reset();
+    pete_reset();
+    modeResetRequired = false; // we just called all the reset functions, so we don'e need to again (until a new mode change)
   }
 }
 
@@ -66,8 +88,14 @@ uint16_t xy (uint8_t x, uint8_t y)
   return ledNum;
 }
 
-void incrementMode()
+void buttonLow()
 {
-  mode++;
-  if(mode > NUM_MODES) mode = 1; // loop back to first mode
+  if (buttonArmed == true) // only increment MODE if armed
+  {
+    mode++;
+    if (mode > NUM_MODES) mode = 1; // loop back to first mode
+    buttonArmed = false; // reset armed, this will require a release of button
+    modeResetRequired = true; // we just changed modes, so we need to reset variables
+  }
+  releaseTime = 0; // reset here, because this interrupt is triggered on a FALLING low on interruptPin
 }
