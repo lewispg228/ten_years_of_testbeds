@@ -18,7 +18,7 @@ boolean buttonArmed = false; // used for debounce, requiring 100ms release of bu
 int releaseTime = 0;
 long timeLastPressed = 0; // keep track of the last button press, for debouncing
 byte mode = 1;
-#define NUM_MODES 2
+#define NUM_MODES 5
 boolean modeResetRequired = false; // used to know if we've changed modes, and to reset variables
 
 void setup() {
@@ -43,6 +43,18 @@ void loop()
     case 2:
       sparkleRandom();
       SerialUSB.println("sparkleRandom");
+      break;
+    case 3:
+      rotate();
+      SerialUSB.println("rotate");
+      break;
+    case 4:
+      doubleRotate();
+      SerialUSB.println("doubleRotate");
+      break;
+    case 5:
+      tripleRotate();
+      SerialUSB.println("tripleRotate");
       break;
     default:
       break;
